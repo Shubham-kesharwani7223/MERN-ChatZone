@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
@@ -27,13 +29,17 @@ export const sendMessage = async (req, res) => {
             conversation.messages.push(newMessage._id);
         }
 
-        // SOCKET IO FUNCTIONALITY WILL GO HERE
-
         // await conversation.save();
         // await newMessage.save();
 
         // this will run in parallel
         await Promise.all([conversation.save(), newMessage.save()]);
+
+        // SOCKET IO FUNCTIONALITY WILL GO HERE
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
 
         res.status(201).json(newMessage);
 
@@ -63,5 +69,29 @@ export const getMessages = async (req, res) => {
     } catch (error) {
         console.log("Error in getMessage controller", error.message);
         res.status(500).json({ error: "Internal server error"});
+    };
+};
+
+
+
+export const deleteMessages = async (req, res) => {
+    try{
+    const messageId = req.params.id;
+
+    if(!mongoose.Types.ObjectId.isValid(messageId)){
+        return res.status(400).json({ success: false, message: "Invalid messageId"});
     }
-}
+    
+        const deleteMessage = await Message.findByIdAndDelete(messageId);
+
+        if(!deleteMessage){
+            res.status(404).json({ success: false, message:"Message not found"});
+        }
+
+        res.status(200).json({success: true, message: "Message deleted successfully"});
+
+    } catch (error) {
+        console.error("Error deleting message:", error);
+        res.status(500).json({ success: false, message: "Message was not deleted", error: error.message });
+    }
+};

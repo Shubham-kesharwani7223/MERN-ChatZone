@@ -34,12 +34,6 @@ io.on("connection", (socket) => {
 		delete userSocketMap[userId];
 		io.emit("getOnlineUsers", Object.keys(userSocketMap));
 	});
-
-    socket.on("deleteMessage",async (messageId) => {
-		await Message.findByIdAndDeleted(messageId);
-
-		io.emit("messageDeleted", messageId);
-	});
 });
 
 export { app, io, server };

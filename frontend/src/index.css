@@ -60,21 +60,6 @@ body{
 
 
 
-
-
-
-
-
-
-.message {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.message.selected {
-    background-color: #ffcccc; /* Select hone par highlight */
-}
-
 .delete-button {
     position: fixed;
     top: 0.001px;

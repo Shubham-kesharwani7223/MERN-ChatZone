@@ -1,11 +1,11 @@
 import express from "express";
-import { deleteMessages, getMessages, sendMessage } from "../coltrollers/message.controller.js";
+import { getMessages, sendMessage } from "../coltrollers/message.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
 router.get("/:id", protectRoute, getMessages);
 router.post("/send/:id", protectRoute, sendMessage);
-router.delete("/:id", protectRoute, deleteMessages);
+// router.delete("/:id", protectRoute, deleteMessages);
 
 export default router;
